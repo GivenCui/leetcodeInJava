@@ -62,10 +62,11 @@ public class LongestSubstringWithoutRepeatingCharacters_3 {
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
-    // 方法二: 暴力破解(两层for + 直接统计maxLength)
-    // 1. 生成所有不包含重复字符的子串
-    //      a. 所有单子串存入集合
-    //      b. 遍历字符串, 外层 start, 内层 end
+    // 方法三: 双指针 + 哈希
+    // 1. 生成所有不包含重复字符的子串a
+    //      a. 遍历字符串, 外层 start, 内层 end
+    //      b. end在子串中是否重复用哈希表判断
+    //      c. 哈希表 用 char 作为key,   hash = (char c) => c   // 'a' -> 97, 128个字符
     // 2. 统计最长子串长度
     // 时间复杂度: O(n^3)  执行耗时:224 ms, 击败了6.08% 的Java用户
     // 空间复杂度: O(n^2)  内存消耗:38.7 MB,击败了38.12% 的Java用户
@@ -75,17 +76,21 @@ public class LongestSubstringWithoutRepeatingCharacters_3 {
             if (s == null || (length = s.length()) == 0) return 0;
 
             // b. 遍历字符串, 外层 start, 内层 end
-            int maxLen = 1;
+            int maxLen = 1; // 不是空串至少一个子串
             for (int start = 0; start < length; start++) {
+                boolean[] hashTable = new boolean[128];
+                hashTable[s.charAt(start)] = true;
+
                 for (int end = start + 1; end < length; end++) {
-                    String subStr = s.substring(start, end);  // 截取子串 一次 for
-                    if (subStr.indexOf(s.charAt(end)) != -1) {  // 一次 for
+                    char c = s.charAt(end);
+                    if (hashTable[c]) {
                         break;
                     }
 
+                    hashTable[c] = true;
                     // 2. 统计最长子串长度
                     int subLen = end + 1 - start;
-                    maxLen = subLen > maxLen ? subLen : maxLen;
+                    maxLen = maxLen < subLen ? subLen : maxLen;
                 }
             }
 
@@ -133,8 +138,7 @@ public class LongestSubstringWithoutRepeatingCharacters_3 {
     }
     // 方法二: 暴力破解(两层for + 直接统计maxLength)
     // 1. 生成所有不包含重复字符的子串
-    //      a. 所有单子串存入集合
-    //      b. 遍历字符串, 外层 start, 内层 end
+    //      a. 遍历字符串, 外层 start, 内层 end
     // 2. 统计最长子串长度
     // 时间复杂度: O(n^3)  执行耗时:224 ms, 击败了6.08% 的Java用户
     // 空间复杂度: O(n^2)  内存消耗:38.7 MB,击败了38.12% 的Java用户

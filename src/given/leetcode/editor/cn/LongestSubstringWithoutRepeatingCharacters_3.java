@@ -62,35 +62,38 @@ public class LongestSubstringWithoutRepeatingCharacters_3 {
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
-    // 方法三: 双指针 + 哈希
-    // 1. 生成所有不包含重复字符的子串a
-    //      a. 遍历字符串, 外层 start, 内层 end
-    //      b. end在子串中是否重复用哈希表判断
-    //      c. 哈希表 用 char 作为key,   hash = (char c) => c   // 'a' -> 97, 128个字符
-    // 2. 统计最长子串长度
-    // 时间复杂度: O(n^3)  执行耗时:224 ms, 击败了6.08% 的Java用户
-    // 空间复杂度: O(n^2)  内存消耗:38.7 MB,击败了38.12% 的Java用户
+    // 最优解: 双指针 + 哈希  ( 一层循环 )
+    // 1. 遍历字符串, 双指针 left, right, 在子串中是否重复用哈希表判断
+    //      a. right 处字符 在 table中:
+    //          1. table中抹去left对应字符的记录
+    //          2. left++
+    //      b. right 处字符 不在 table中:
+    //          1. right出字符存入 table
+    //          2. 统计最长子串长度
+    //          3. right++
+    //      c. 重复
+    // 时间复杂度: O(n)  执行耗时:2 ms,击败了100.00% 的Java用户
+    // 空间复杂度: O(1)  内存消耗:38.1 MB,击败了98.78% 的Java用户
     class Solution {
         public int lengthOfLongestSubstring(String s) {
             int length;
             if (s == null || (length = s.length()) == 0) return 0;
 
-            // b. 遍历字符串, 外层 start, 内层 end
+            // 否重复用哈希表判断
+            boolean[] table = new boolean[128];
             int maxLen = 1; // 不是空串至少一个子串
-            for (int start = 0; start < length; start++) {
-                boolean[] hashTable = new boolean[128];
-                hashTable[s.charAt(start)] = true;
+            for (int left = 0, right = 0;  right < length;) {
+                if (table[s.charAt(right)]) { // a. right 处字符 在 table中
+                    table[s.charAt(left)] = false;
+                    left++;
+                } else { // b. right 处字符 不在 table中:
+                    table[s.charAt(right)] = true;
 
-                for (int end = start + 1; end < length; end++) {
-                    char c = s.charAt(end);
-                    if (hashTable[c]) {
-                        break;
-                    }
-
-                    hashTable[c] = true;
-                    // 2. 统计最长子串长度
-                    int subLen = end + 1 - start;
+                    int subLen = right + 1 - left;
                     maxLen = maxLen < subLen ? subLen : maxLen;
+//                    System.out.println(s.substring(left, right + 1));
+
+                    right++;
                 }
             }
 
@@ -159,6 +162,41 @@ public class LongestSubstringWithoutRepeatingCharacters_3 {
                     // 2. 统计最长子串长度
                     int subLen = end + 1 - start;
                     maxLen = subLen > maxLen ? subLen : maxLen;
+                }
+            }
+
+            return maxLen;
+        }
+    }
+    // 方法三: 两次循环 + 双指针 + 哈希
+    // 1. 生成所有不包含重复字符的子串a
+    //      a. 遍历字符串, 外层 start, 内层 end
+    //      b. end在子串中是否重复用哈希表判断
+    //      c. 哈希表 用 char 作为key,   hash = (char c) => c   // 'a' -> 97, 128个字符
+    // 2. 统计最长子串长度
+    // 时间复杂度: O(n^2)  执行耗时:224 ms, 击败了6.08% 的Java用户
+    // 空间复杂度: O(1)  内存消耗:38.7 MB,击败了38.12% 的Java用户
+    class Solution3 {
+        public int lengthOfLongestSubstring(String s) {
+            int length;
+            if (s == null || (length = s.length()) == 0) return 0;
+
+            // b. 遍历字符串, 外层 start, 内层 end
+            int maxLen = 1; // 不是空串至少一个子串
+            for (int start = 0; start < length; start++) {
+                boolean[] hashTable = new boolean[128];
+                hashTable[s.charAt(start)] = true;
+
+                for (int end = start + 1; end < length; end++) {
+                    char c = s.charAt(end);
+                    if (hashTable[c]) {
+                        break;
+                    }
+
+                    hashTable[c] = true;
+                    // 2. 统计最长子串长度
+                    int subLen = end + 1 - start;
+                    maxLen = maxLen < subLen ? subLen : maxLen;
                 }
             }
 

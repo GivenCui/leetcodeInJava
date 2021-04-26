@@ -57,47 +57,54 @@ public class LongestSubstringWithoutRepeatingCharacters_3 {
         Solution solution = new LongestSubstringWithoutRepeatingCharacters_3().new Solution();
         // case1
         System.out.println(solution.lengthOfLongestSubstring("abcabcbb")); // 3 abc
-        System.out.println(solution.lengthOfLongestSubstring("pwwkew")); // 3 wke
+        System.out.println(solution.lengthOfLongestSubstring("abba"));     // 2 ab
+        System.out.println(solution.lengthOfLongestSubstring("pwwkew"));   // 3 wke
         System.out.println(solution.lengthOfLongestSubstring("GivenCui")); // 7 GivenCu
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
-    // 最优解: 双指针 + 哈希  ( 一层循环 )
-    // 1. 遍历字符串, 双指针 left, right, 在子串中是否重复用哈希表判断
-    //      a. right 处字符 在 table中:
-    //          1. table中抹去left对应字符的记录
-    //          2. left++
-    //      b. right 处字符 不在 table中:
-    //          1. right出字符存入 table
-    //          2. 统计最长子串长度
-    //          3. right++
-    //      c. 重复
-    // 时间复杂度: O(n)  执行耗时:2 ms,击败了100.00% 的Java用户
-    // 空间复杂度: O(1)  内存消耗:38.1 MB,击败了98.78% 的Java用户
+    // 最优解: 双指针 + 哈希  ( 一层循环 ) 遍历字符串, 双指针 left, right, 在子串中是否重复用哈希表判断
+    // --- 优化了左指针直接移动到指定位置 ---
+    // 1. 哈希表中填充ASCII码表不包含的数据作为默认值, 取 -1
+    // 2. 遍历字符串的所有字符
+    //    a. 如果出现过, left 根据哈希表value直接定位, 注意取 Math.max(lastIndex + 1, left)
+    //    b. 更新哈希表, right始终自增
+    // 3. 计算子串长度, 记录最大值
+    //
+    // 时间复杂度: O(n)  执行耗时: 2 ms,击败了 100.00% 的Java用户
+    // 空间复杂度: O(1)  内存消耗: 38.1 MB,击败了 98.88% 的Java用户
     class Solution {
         public int lengthOfLongestSubstring(String s) {
             int length;
             if (s == null || (length = s.length()) == 0) return 0;
 
-            // 否重复用哈希表判断
-            boolean[] table = new boolean[128];
-            int maxLen = 1; // 不是空串至少一个子串
-            for (int left = 0, right = 0;  right < length;) {
-                if (table[s.charAt(right)]) { // a. right 处字符 在 table中
-                    table[s.charAt(left)] = false;
-                    left++;
-                } else { // b. right 处字符 不在 table中:
-                    table[s.charAt(right)] = true;
-
-                    int subLen = right + 1 - left;
-                    maxLen = maxLen < subLen ? subLen : maxLen;
-//                    System.out.println(s.substring(left, right + 1));
-
-                    right++;
-                }
+            // 1. 哈希表中填充ASCII码表不包含的数据作为默认值, 取 -1
+            int[] table = new int[128];
+            for (int i = 0; i < table.length; i++) {
+                table[i] = -1;
             }
+            // 2. 遍历字符串的所有字符
+            int maxLen = 1, left = 0, right = 0;
+            while ( right < length) {
+                char rightChar = s.charAt(right);
+                int lastIndex = table[hashCode(rightChar)];
+                if (lastIndex != -1) {
+                    //    a. left 根据哈希表value直接定位
+                    left = Math.max(lastIndex + 1, left) ; // left只往右, 不会回头往左移动
+                }
+                //    b. right始终自增, 更新哈希表
+                table[hashCode(rightChar)] = right;
+                // 3. 计算子串长度, 记录最大值
+                int subLen = right - left + 1;
+                maxLen = maxLen < subLen ? subLen : maxLen;
 
+                right++; // right始终自增
+            }
             return maxLen;
+        }
+        // 这么写比较严谨, 数组不会溢出
+        public int hashCode(char c) {
+            return 127 & c;  // c % 128
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
@@ -200,6 +207,80 @@ public class LongestSubstringWithoutRepeatingCharacters_3 {
                 }
             }
 
+            return maxLen;
+        }
+    }
+    // 视频解法: 双指针 + 哈希  ( 一层循环 )
+    // 1. 遍历字符串, 双指针 left, right, 在子串中是否重复用哈希表判断
+    //      a. right 处字符 在 table中:
+    //          1. table中抹去left对应字符的记录
+    //          2. left++
+    //      b. right 处字符 不在 table中:
+    //          1. right出字符存入 table
+    //          2. 统计最长子串长度
+    //          3. right++
+    //      c. 重复
+    // 时间复杂度: O(n)  执行耗时:2 ms,击败了100.00% 的Java用户
+    // 空间复杂度: O(1)  内存消耗:38.1 MB,击败了98.78% 的Java用户
+    class Solution4 {
+        public int lengthOfLongestSubstring(String s) {
+            int length;
+            if (s == null || (length = s.length()) == 0) return 0;
+
+            // 否重复用哈希表判断
+            boolean[] table = new boolean[128];
+            int maxLen = 1; // 不是空串至少一个子串
+            for (int left = 0, right = 0;  right < length;) {
+                if (table[hashCode(s.charAt(right))]) { // a. right 处字符 在 table中
+                    table[hashCode(s.charAt(left))] = false;
+                    left++;
+                } else { // b. right 处字符 不在 table中:
+                    table[hashCode(s.charAt(right++))] = true;
+
+                    int subLen = right - left;
+                    maxLen = maxLen < subLen ? subLen : maxLen;
+//                    System.out.println(s.substring(left, right + 1));
+                }
+            }
+
+            return maxLen;
+        }
+        public int hashCode(char c) {
+            return 127 & c;  // c % 128
+        }
+    }
+    // 最优解: 双指针 + 哈希  ( 一层循环 ) <<-- 我的解法
+    // 1. 遍历字符串, 双指针 left, right, 在子串中是否重复用哈希表判断
+    //      a. right 处字符 在 table中:
+    //          1. table中抹去left对应字符的记录
+    //          2. left++
+    //      b. right 处字符 不在 table中:
+    //          1. right出字符存入 table
+    //          2. 统计最长子串长度
+    //          3. right++
+    //      c. 重复
+    // 时间复杂度: O(n)  执行耗时:2 ms,击败了100.00% 的Java用户
+    // 空间复杂度: O(1)  内存消耗:38.1 MB,击败了98.78% 的Java用户
+    class Solution5 {
+        public int lengthOfLongestSubstring(String s) {
+            int length;
+            if (s == null || (length = s.length()) == 0) return 0;
+
+            // 否重复用哈希表判断
+            boolean[] table = new boolean[128];
+            int maxLen = 1; // 不是空串至少一个子串
+            for (int left = 0, right = 0;  right < length;) {
+                if (table[s.charAt(right)]) { // a. right 处字符 在 table中
+                    table[s.charAt(left)] = false;
+                    left++;
+                } else { // b. right 处字符 不在 table中:
+                    table[s.charAt(right++)] = true;
+
+                    int subLen = right - left;
+                    maxLen = maxLen < subLen ? subLen : maxLen;
+                    // System.out.println(s.substring(left, right));
+                }
+            }
             return maxLen;
         }
     }

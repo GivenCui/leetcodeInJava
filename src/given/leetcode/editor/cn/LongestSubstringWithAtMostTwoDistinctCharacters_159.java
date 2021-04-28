@@ -36,8 +36,8 @@ public class LongestSubstringWithAtMostTwoDistinctCharacters_159 {
     // 解法一: hashMap + 双指针
     // 1. while(right < len)
     //      right字符存入 hashMap { char: index }
-    //      判断if hashMap的size() < 3,  ,  right++, 统计 maxLen
-    //      判断else if hashMap的size() == 3, 找到index最小的key和val, left = val+1, 移除该key
+    //      判断if hashMap的size() <= 2,  ,  right++, 统计 maxLen
+    //      判断else if hashMap的size() > 2, 找到index最小的key和val, left = val+1, 移除该key
     // 2. 返回maxLen
     // 时间: O(n) 执行耗时: 5 ms, 击败了80.23% 的Java用户
     // 空间: O(1) 内存消耗: 38.6 MB,击败了35.24% 的Java用户
@@ -45,7 +45,7 @@ public class LongestSubstringWithAtMostTwoDistinctCharacters_159 {
         public int lengthOfLongestSubstringTwoDistinct(String s) {
             if (s == null) return 0;
             int len = s.length();
-            if (len < 3) return len; // 2个字符时, 至多包含两个不同字符的最长子串的长度是本身字符串长度
+            if (len <= 2) return len; // 2个字符时, 至多包含两个不同字符的最长子串的长度是本身字符串长度
 
             HashMap<Character, Integer> map = new HashMap<>();
             int maxLen = 2;
@@ -53,7 +53,7 @@ public class LongestSubstringWithAtMostTwoDistinctCharacters_159 {
             while (right < len) {
                 map.put(s.charAt(right), right++);
 
-                if (map.size() < 3) {
+                if (map.size() <= 2) {
                     int subLen = right - left;
 //                    System.out.println(s.substring(left, right));
                     maxLen = maxLen > subLen ? maxLen : subLen;
@@ -78,18 +78,18 @@ public class LongestSubstringWithAtMostTwoDistinctCharacters_159 {
         public int lengthOfLongestSubstringTwoDistinct(String s) {
             if (s == null) return 0;
             int len = s.length();
-            if (len < 3) return len; // 2个字符时, 至多包含两个不同字符的最长子串的长度是本身字符串长度
+            if (len <= 2) return len; // 2个字符时, 至多包含两个不同字符的最长子串的长度是本身字符串长度
 
             HashMap<Character, Integer> map = new HashMap<>();
             int left = 0, right = 0;
             int maxLen = 2;
 
             while (right < len) {
-                if (map.size() < 3) {
+                if (map.size() <= 2) {
                     map.put(s.charAt(right), right++);
 //                    System.out.println(s.substring(left, right));
                 }
-                if(map.size() == 3){
+                if(map.size() > 2){
                     int minIndex = Collections.min(map.values());
                     left = minIndex + 1;
                     map.remove(s.charAt(minIndex));
@@ -105,8 +105,8 @@ public class LongestSubstringWithAtMostTwoDistinctCharacters_159 {
     // 失败解法 hashMap + 双指针 + 链表队列( x )  这个优化思路是错误的, case: abaccc, 不满足
     // 1. while(right < len)
     //      right字符存入 hashMap { char: index }
-    //      判断如果 hashMap的size() < 3,  ,  right++, 统计 maxLen
-    //      判断如果 hashMap的size() == 3
+    //      判断如果 hashMap的size() <= 2,  ,  right++, 统计 maxLen
+    //      判断如果 hashMap的size() > 2
     //         1. 找到index最小的key和val, 借助链表, 模拟队列, O(1)的速度找到第一个字母, 不行, 是找所以最小的字符删除, 而不是最早添加的
     //         2. left = val+1, 移除该key
     // 2. 返回maxLen
@@ -114,7 +114,7 @@ public class LongestSubstringWithAtMostTwoDistinctCharacters_159 {
         public int lengthOfLongestSubstringTwoDistinct(String s) {
             if (s == null) return 0;
             int len = s.length();
-            if (len < 3) return len; // 2个字符时, 至多包含两个不同字符的最长子串的长度是本身字符串长度
+            if (len <= 2) return len; // 2个字符时, 至多包含两个不同字符的最长子串的长度是本身字符串长度
 
             HashMap<Character, Integer> map = new HashMap<>();
             ListNode p, head = new ListNode();
@@ -130,7 +130,7 @@ public class LongestSubstringWithAtMostTwoDistinctCharacters_159 {
                     p.next = new ListNode(rightChar);
                     p = p.next;
                 }
-                if (map.size() < 3) {
+                if (map.size() <= 2) {
                     int subLen = right - left;
 //                    System.out.println(s.substring(left, right));
                     maxLen = maxLen > subLen ? maxLen : subLen;

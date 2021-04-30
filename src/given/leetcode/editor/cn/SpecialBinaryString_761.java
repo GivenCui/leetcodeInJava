@@ -32,6 +32,8 @@ package given.leetcode.editor.cn;
 
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 // 761 特殊的二进制序列
 public class SpecialBinaryString_761 {
@@ -43,17 +45,71 @@ public class SpecialBinaryString_761 {
         System.out.println(solution.makeLargestSpecial("11010110110000").equals("11110010010100"));
 
         // String[] test1 = new String[]{"10", "1100","10", "1100"};
-        // solution.bubbleSort(test1, 4);
+        // solution.quickSort(test1, 0, 3);
         // System.out.println(Arrays.toString(test1));
         // System.out.println("10".compareTo("1100")); // -1
         // System.out.println("1100".compareTo("10")); // 1
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
+    // 解法二:
+    // 执行耗时:2 ms,击败了93.33% 的Java用户
+    // 内存消耗:36.8 MB,击败了75.83% 的Java用户
+    class Solution {
+        public String makeLargestSpecial(String S) {
+            // 结束条件
+            int len;
+            if ((len = S.length()) <= 1) return S;
+
+            StringBuilder res = new StringBuilder();
+            List<String> list = new LinkedList<>();
+            int countOne = 0;
+            int start = 0;
+            // 找出特殊子串, 并递归的筛选, 字典排序, 拼接
+            for (int end = 0; end < len; end++) {
+                countOne += (S.charAt(end) == '1' ? 1 : -1);
+                if (countOne == 0) {
+                    String sub = S.substring(start + 1, end); // 去掉头1和尾部的0, 后再判断是否是特殊子串
+                    sub = sub.length() > 1 ? makeLargestSpecial(sub) : sub; // <-- 递归调用
+
+                    list.add("1" + sub + "0");
+                    start = end + 1; // bug1,  写到了if外面
+                }
+            }
+
+            // 按字典从小到到大排序
+            String[] arr = list.toArray(new String[list.size()]); // ArrayList 转 数组 ??
+            quickSort(arr, 0, arr.length - 1);
+
+            // 逆序取出拼接到 stringBuilder
+            for (int j = arr.length - 1; j >= 0; j--) {
+                res.append(arr[j]);
+            }
+            return res.toString();
+        }
+
+        public void quickSort(String[] A, int low, int high) {
+            if(low >= high) return;
+            int i = low, j = high;
+            String pivot = A[i];
+
+            while(i < j) {
+                while(i<j && A[j].compareTo(pivot) >= 0) j--;
+                if(i<j) A[i++] = A[j];
+                while(i<j && A[i].compareTo(pivot) <= 0) i++;
+                if(i<j) A[j--] = A[i];
+            }
+
+            A[i] = pivot;
+            if (low < i-1) quickSort(A, low, i-1);
+            if(high > i+1) quickSort(A, i+1, high);
+        }
+    }
+    //leetcode submit region end(Prohibit modification and deletion)
     // 解法一:
     // 执行耗时:2 ms,击败了93.33% 的Java用户
     // 内存消耗:36.6 MB,击败了95.83% 的Java用户
-    class Solution {
+    class Solution1 {
         public String makeLargestSpecial(String S) {
             // 结束条件
             int len;
@@ -99,6 +155,4 @@ public class SpecialBinaryString_761 {
             }
         }
     }
-//leetcode submit region end(Prohibit modification and deletion)
-
 }

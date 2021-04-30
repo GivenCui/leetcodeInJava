@@ -9,18 +9,20 @@ package com.given.test;
  */
 public class QuickSort {
     public static void main(String[] args) {
-        int[] nums1= new int[]{49, 38, 65, 97, 76, 13, 27, 49};
+        // int[] nums1= new int[]{49, 38, 65, 97, 76, 13, 27, 49};
+        int[] nums1= new int[]{4, 7, 3, 5, 1, 6};
         // quickSort1(nums1, 0, nums1.length - 1);
-        quickSort2(nums1, 0, nums1.length - 1);
+        // quickSort2(nums1, 0, nums1.length - 1);
+        quickSort3(nums1, 0, nums1.length - 1);
 
         // 测试
-        System.out.println("---- 结果 ----");
-        System.out.println("13 27 38 49 49 65 76 97");
+        System.out.println("结果: " + "13 27 38 49 49 65 76 97");
+        System.out.print("答案: ");
         for (int i : nums1) {
             System.out.print(i + " ");
         }
     }
-    // 参考王道
+    // 解法一: 参考王道
     // 思路清晰, 代码整洁, 但是执行中会有多余步骤
     public static void quickSort1(int[] nums, int low, int high) {
         if (nums == null || nums.length <= 1) return;
@@ -44,7 +46,7 @@ public class QuickSort {
         return low;
     }
 
-    // 参考拉钩
+    // 解法二: 参考拉钩
     // 更多的if判断, 提前结束, 避免无效的函数调用
     public static void quickSort2(int[] nums, int low, int high) {
         if(low >= high) return;
@@ -64,5 +66,29 @@ public class QuickSort {
         if(low < i - 1) quickSort2(nums, low, i - 1);
         // 划分子区间2
         if(high > i + 1) quickSort2(nums, i + 1, high);
+    }
+
+    // 解法三: 快速排序 TODO: 新解法了解
+    public static void quickSort3(int[] nums, int start, int end) {
+        if (start >= end) {
+            return;
+        }
+        int pivot = nums[start];
+        int index = start;
+        for (int i = start + 1; i <= end; i++) {
+            if (nums[i] < pivot) {
+                index += 1;
+                swap(nums, index, i);
+            }
+        }
+        swap(nums, index, start);
+        quickSort3(nums, start, index - 1);
+        quickSort3(nums, index + 1, end);
+    }
+
+    public static void swap(int[] nums, int l, int r) {
+        int temp = nums[l];
+        nums[l] = nums[r];
+        nums[r] = temp;
     }
 }
